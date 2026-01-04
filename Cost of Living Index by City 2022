@@ -1,0 +1,69 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import io
+
+col = pd.read_csv('costofliving.csv')
+
+# Display the head as a table image
+fig, ax = plt.subplots(figsize=(12, 4))
+ax.axis('tight')
+ax.axis('off')
+table = ax.table(cellText=col.head().values, colLabels=col.columns, cellLoc='center', loc='center')
+table.auto_set_font_size(False)
+table.set_fontsize(10)
+table.scale(1.2, 1.2)
+plt.title('Cost of Living Data - First 5 Rows')
+plt.savefig('cost_of_living_table.png', bbox_inches='tight', dpi=150)
+plt.show()
+
+# Plot the top 10 cities by Cost of Living Index
+top_10 = col.head(10)
+plt.figure(figsize=(10, 6))
+plt.barh(top_10['City'], top_10['Cost of Living Index'], color='skyblue')
+plt.xlabel('Cost of Living Index')
+plt.ylabel('City')
+plt.title('Top 10 Cities by Cost of Living Index (2022)')
+plt.gca().invert_yaxis()  # Highest at top
+plt.tight_layout()
+plt.savefig('cost_of_living_top10.png')  # Save as image
+plt.show()
+
+# Scatter plot of Cost of Living Index vs Local Purchasing Power Index for top 20 cities
+top_20 = col.head(20)
+plt.figure(figsize=(12, 8))
+plt.scatter(top_20['Cost of Living Index'], top_20['Local Purchasing Power Index'], color='green', alpha=0.7)
+for i, row in top_20.iterrows():
+    country = row['City'].split(', ')[1] if ', ' in row['City'] else row['City']
+    plt.annotate(country, (row['Cost of Living Index'], row['Local Purchasing Power Index']), 
+                 textcoords="offset points", xytext=(5,5), ha='left', fontsize=8)
+plt.xlabel('Cost of Living Index')
+plt.ylabel('Local Purchasing Power Index')
+plt.title('Cost of Living vs Purchasing Power (Top 20 Cities)')
+plt.grid(True)
+plt.savefig('cost_vs_power_scatter.png')
+plt.show()
+
+# Save col.info() as an image
+buffer = io.StringIO()
+col.info(buf=buffer)
+info_str = buffer.getvalue()
+fig, ax = plt.subplots(figsize=(10, 6))
+ax.text(0.05, 0.95, info_str, fontsize=10, family='monospace', verticalalignment='top', transform=ax.transAxes)
+ax.axis('off')
+plt.title('Dataframe Info')
+plt.savefig('dataframe_info.png', bbox_inches='tight')
+plt.show()
+
+# Display DataFrame info
+# Get non-null counts
+non_null = col.notnull().sum()
+print("Non-Null Counts:\n", non_null)
+
+# Get dtypes
+dtypes = col.dtypes
+print("\nData Types:\n", dtypes)
+
+# Get memory usage
+memory = col.memory_usage(deep=True)
+print("\nMemory Usage:\n", memory)
+print("Total Memory:", memory.sum())
